@@ -10,15 +10,20 @@ import parseopt2
 {.compile: "keychain.m", passL: "-framework Foundation -framework Security".}
 proc getTokenFromKeychain(token_name: cstring, keychain_path: cstring): cstring {.importc.}
 
+# get progname
+##
+proc progname(): string =
+  result = os.extractFilename(os.getAppFilename())
+
 # define the usage for "--help"
 ##
 proc usage =
-  echo "usage: " & os.extractFilename(os.getAppFilename()) & " [--help|-h] [-v|--version] [-p|--keychain]:<keychain path> [-n|--name]:<item name>"
+  echo "usage: " & progname() & " [--help|-h] [-v|--version] [-p|--keychain]:<keychain path> [-n|--name]:<item name>"
 
 # define the version number
 ##
 proc version_info =
-  echo "secure-env v0.1"
+  echo progname() & " v0.2"
 
 # ===========================================
 # this is the entry-point, there is no main()
