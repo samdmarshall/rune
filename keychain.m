@@ -76,8 +76,10 @@ int unlockKeychain(char *keychain_path) {
     if (open_result != errSecSuccess) {
         goto exit;
     }
+
+    is_now_unlocked = isKeychainUnlocked(keychain_path);
     
-    if (isKeychainUnlocked(keychain_path)) {
+    if (not is_now_unlocked) {
         char *name = basename(keychain_path);
         char *account_name = "login";
         UInt32 password_length = 0;
@@ -86,7 +88,7 @@ int unlockKeychain(char *keychain_path) {
         if (find_password_result != errSecSuccess) {
             goto exit;
         }
-        
+
         OSStatus unlock_result = SecKeychainUnlock(storage_keychain, password_length, password_data, true);
         SecKeychainItemFreeContent(NULL, password_data);
         if (unlock_result != errSecSuccess) {

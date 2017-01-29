@@ -7,7 +7,7 @@ import parseopt2
 # additionally, declare the interface that should be used to access the bridged code to run the 
 # code that accesses the system APIs for the keychain
 ##
-{.compile: "keychain.m".}
+{.compile: "keychain.m", passL: "-framework Foundation -framework Security".}
 proc getTokenFromKeychain(token_name: cstring, keychain_path: cstring): cstring {.importc.}
 
 # define the usage for "--help"
@@ -29,7 +29,7 @@ var keychain_path: string = ""
 var secure_item_name: string = ""
 
 # iterate over the command line flags passed to the executable
-for kind, key, value in getopt():
+for kind, key, value in parseopt2.getopt():
   case kind
   of cmdLongOption, cmdShortOption:
     case key
@@ -38,7 +38,7 @@ for kind, key, value in getopt():
     of "version", "v":
       version_info()
     of "keychain", "p":
-      var expanded_path: string = os.expandTilde(value)
+      let expanded_path: string = os.expandTilde(value)
       keychain_path = os.expandFilename(expanded_path)
     of "name", "n":
       secure_item_name = value
