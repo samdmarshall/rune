@@ -1,9 +1,27 @@
 # build
 
-`nim compile --out:secure-env --app:console --passL:"-framework Foundation -framework Security" secureEnv.nim`
+`nim compile secureEnv.nim`
 
 # usage
-this was primarily made for my own usage, but it unlocks and retrieves items out of a keychain that is registered with the system. I store a bunch of API tokens for my shell in a shared keychain so it is always in sync (and retrieves the password out of my login keychain to unlock). this acts as a wrapper around making those calls instead of using shell scripting when setting up a new shell session (considerably slower).
+this stores key-value pairs in a sqlite database that can be placed into version control or shared however. the secrets are encrypted/decrypted based on the values of the "encrypt_cmd" and "decrypt_cmd" that is set in the config file (`$XDG_CONFIG_HOME/secure-env/config.yml` or the `SECURE_ENV_CONFIG` environment variable). I am using gpg keys to do this, so my config looks like this:
+
+```
+---
+database: ~/.config/storage/secure
+encrypt_cmd: "gpg --output {output} --recipient me@samdmarshall.com --encrypt {input}"
+decrypt_cmd: "gpg --no-tty --quiet --output {output} --decrypt {input}"
+```
+
+## commands
+
+there are three commands:
+
+* `get`: decrypts a secret with a given key name
+  usage: `secure-env get --key:GITHUB_API_TOKEN`
+* `set`: encrypts a secret with a given key name
+  usage: `secure-env set --key:GITHUB_API_TOKEN --value:"hello world!"`
+* `list`: lists all keys stored in the database
+  usage: `secure-env list`
 
 # installation
 
