@@ -33,9 +33,9 @@ proc usage =
   of SubCommand.None:
     echo("usage: " & progname() & " [--help|-h] [--version] [get|set|list] ...")
   of SubCommand.Get:
-    echo("usage: " & progname() & " get [--key|-k] <name of secret>")
+    echo("usage: " & progname() & " get --key:<name of secret>")
   of SubCommand.Set:
-    echo("usage: " & progname() & " set [--key|-k] <name of secret> [--value|-v] <secret>")
+    echo("usage: " & progname() & " set --key:<name of secret> --value:<secret>")
   of SubCommand.List:
     echo("usage: " & progname() & " list")
   quit(QuitSuccess)
@@ -125,14 +125,14 @@ for kind, key, value in parseopt2.getopt():
       case current_command
       of SubCommand.Get:
         case key
-        of "key", "k":
+        of "key":
           token_key = value
         else: discard
       of SubCommand.Set:
         case key
-        of "key", "k":
+        of "key":
           token_key = value
-        of "value", "v":
+        of "value":
           token_value = value
         else: discard
       else: discard
