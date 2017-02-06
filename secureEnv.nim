@@ -117,33 +117,25 @@ for kind, key, value in parseopt2.getopt():
   case kind
   of cmdLongOption, cmdShortOption:
     case key
-    of "version":
-        version_info()
-    of "help", "h":
-        usage()
+    of "version": version_info()
+    of "help", "h": usage()
     else:
       case current_command
       of SubCommand.Get:
         case key
-        of "key":
-          token_key = value
+        of "key": token_key = value
         else: discard
       of SubCommand.Set:
         case key
-        of "key":
-          token_key = value
-        of "value":
-          token_value = value
+        of "key": token_key = value
+        of "value": token_value = value
         else: discard
       else: discard
   of cmdArgument:
     case key:
-    of "get":
-      current_command = SubCommand.Get
-    of "set":
-      current_command = SubCommand.Set
-    of "list":
-      current_command = Subcommand.List
+    of "get": current_command = SubCommand.Get
+    of "set": current_command = SubCommand.Set
+    of "list": current_command = Subcommand.List
     else: discard
   else: discard
 
