@@ -30,14 +30,10 @@ proc progname(): string =
 ##
 proc usage =
   case current_command:
-  of SubCommand.None:
-    echo("usage: " & progname() & " [--help|-h] [--version] [get|set|list] ...")
-  of SubCommand.Get:
-    echo("usage: " & progname() & " get --key:<name of secret>")
-  of SubCommand.Set:
-    echo("usage: " & progname() & " set --key:<name of secret> --value:<secret>")
-  of SubCommand.List:
-    echo("usage: " & progname() & " list")
+  of SubCommand.None: echo("usage: " & progname() & " [--help|-h] [--version] [get|set|list] ...")
+  of SubCommand.Get:  echo("usage: " & progname() & " get --key:<name of secret>")
+  of SubCommand.Set:  echo("usage: " & progname() & " set --key:<name of secret> --value:<secret>")
+  of SubCommand.List: echo("usage: " & progname() & " list")
   quit(QuitSuccess)
 
 # define the version number
@@ -133,8 +129,8 @@ for kind, key, value in parseopt2.getopt():
       else: discard
   of cmdArgument:
     case key:
-    of "get": current_command = SubCommand.Get
-    of "set": current_command = SubCommand.Set
+    of "get":  current_command = SubCommand.Get
+    of "set":  current_command = SubCommand.Set
     of "list": current_command = Subcommand.List
     else: discard
   else: discard
