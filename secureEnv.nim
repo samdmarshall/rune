@@ -43,7 +43,7 @@ proc usage =
 # define the version number
 ##
 proc version_info =
-  echo progname() & " v0.3"
+  echo progname() & " v0.4"
   quit(QuitSuccess)
 
 proc encryptData(config_data: SecureEnvConfiguration, input: string): string {.gcsafe.} =
