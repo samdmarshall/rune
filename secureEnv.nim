@@ -2,16 +2,20 @@
 ##
 import os
 import yaml
+import osproc
 import streams
 import strutils
-import tempfile
 import db_sqlite
 import parseopt2
 
+type ShellCommand = object
+  cmd: string
+  args: seq[string]
+
 type SecureEnvConfiguration= object
   database: string
-  encrypt_cmd: string
-  decrypt_cmd: string
+  encrypt: ShellCommand
+  decrypt: ShellCommand
 
 type SubCommand {.pure.} = enum
   None,
@@ -43,53 +47,49 @@ proc version_info =
   quit(QuitSuccess)
 
 proc encryptData(config_data: SecureEnvConfiguration, input: string): string {.gcsafe.} =
-  let (_, plain_path) = tempfile.mkstemp()
-  os.removeFile(plain_path)
-  let (_, encrypted_path) = tempfile.mkstemp()
-  os.removeFile(encrypted_path)
+  let encryption_process = osproc.startProcess(config_data.encrypt.cmd, "", config_data.encrypt.args)
+
+  let input_handle = osproc.inputHandle(encryption_process)
+  let output_handle = osproc.outputHandle(encryption_process)
+
+  var output_file: File
+  discard open(output_file, output_handle, fmRead)
+    
+  var input_file: File
+  if open(input_file, input_handle, fmWrite):
+    write(input_file, input)
+    input_file.close()
+
+  let output = output_file.readAll().string
   
-  let fd = open(plain_path, fmWrite)
-  write(fd, input)
-  fd.close()
-  
-  let exec_command = strutils.replace(config_data.encrypt_cmd, "{input}", plain_path).replace("{output}", encrypted_path)
-  let status = os.execShellCmd(exec_command)
-  os.removeFile(plain_path)
-  
-  let output = open(encrypted_path)
   var output_data: seq[string] = newSeq[string]()
-  while not endOfFile(output):
-    let hex_byte = readChar(output)
-    let byte_rep = strutils.format("$1", ord(hex_byte))
-    add(output_data, byte_rep)
-  output.close()
-  os.removeFile(encrypted_path)
-  
+  for data_char in output:
+    output_data.add($ord(data_char))
+  encryption_process.close()
+
   return strutils.join(output_data, ":")
   
 proc decryptData(config_data: SecureEnvConfiguration, input: string): string {.gcsafe.} =
-  let (_, encrypted_path) = tempfile.mkstemp()
-  os.removeFile(encrypted_path)
-  let (_, plain_path) = tempfile.mkstemp()
-  os.removeFile(plain_path)
+  let decryption_process = osproc.startProcess(config_data.decrypt.cmd, "", config_data.decrypt.args)
   
-  let fd = open(encrypted_path, fmWrite)
-  for byte_rep in strutils.split(input, ":"):
-    let hex_byte_int = strutils.parseUInt(byte_rep)
-    let hex_byte = chr(hex_byte_int)
-    write(fd, hex_byte)
-  fd.close()
-  
-  let exec_command = strutils.replace(config_data.decrypt_cmd, "{input}", encrypted_path).replace("{output}", plain_path)
-  let status = os.execShellCmd(exec_command)
-  os.removeFile(encrypted_path)
+  let input_handle = osproc.inputHandle(decryption_process)
+  let output_handle = osproc.outputHandle(decryption_process)
 
-  let output = open(plain_path)
-  let output_data = readAll(output)
-  output.close()
-  os.removeFile(plain_path)
+  var output_file: File
+  discard open(output_file, output_handle, fmRead)
   
-  return output_data.string
+  var input_file: File
+  if open(input_file, input_handle, fmWrite):
+    for byte_rep in strutils.split(input, ":"):
+      let hex_byte_int = strutils.parseUInt(byte_rep)
+      let hex_byte = chr(hex_byte_int)
+      write(input_file, hex_byte)
+    input_file.close()
+
+  let output = output_file.readAll().string
+  decryption_process.close()
+
+  return output
 
 # ===========================================
 # this is the entry-point, there is no main()
