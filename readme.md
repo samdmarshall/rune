@@ -8,8 +8,12 @@ this stores key-value pairs in a sqlite database that can be placed into version
 ```
 ---
 database: ~/.config/storage/secure
-encrypt_cmd: "gpg --output {output} --recipient me@samdmarshall.com --encrypt {input}"
-decrypt_cmd: "gpg --no-tty --quiet --output {output} --decrypt {input}"
+encrypt: 
+  cmd: "/usr/local/bin/gpg"
+  args: ["--armor", "--recipient", "me@samdmarshall.com", "--encrypt"]
+decrypt:
+  cmd: "/usr/local/bin/gpg"
+  args: ["--no-tty", "--quiet", "--decrypt"]
 ```
 
 ## commands
