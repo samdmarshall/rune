@@ -29,8 +29,6 @@ there are three commands:
 
 # installation
 
-`brew tap samdmarshall/formulae`
-
-`brew install samdmarshall/secure-env`
+`brew install samdmarshall/formulae/secure-env`
 
 
