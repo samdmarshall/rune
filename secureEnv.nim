@@ -28,7 +28,7 @@ var current_command = SubCommand.None
 # get progname
 ##
 proc progname(): string =
-  result = os.extractFilename(os.getAppFilename())
+  result = getAppFilename().extractFilename()
 
 # define the usage for "--help"
 ##
@@ -70,18 +70,18 @@ proc encryptData(config_data: SecureEnvConfiguration, input: string): string {.g
   return strutils.join(output_data, ":")
   
 proc decryptData(config_data: SecureEnvConfiguration, input: string): string {.gcsafe.} =
-  let decryption_process = osproc.startProcess(config_data.decrypt.cmd, "", config_data.decrypt.args)
+  let decryption_process = startProcess(config_data.decrypt.cmd, "", config_data.decrypt.args)
   
-  let input_handle = osproc.inputHandle(decryption_process)
-  let output_handle = osproc.outputHandle(decryption_process)
+  let input_handle = decryption_process.inputHandle()
+  let output_handle = decryption_process.outputHandle()
 
   var output_file: File
   discard open(output_file, output_handle, fmRead)
   
   var input_file: File
   if open(input_file, input_handle, fmWrite):
-    for byte_rep in strutils.split(input, ":"):
-      let hex_byte_int = strutils.parseUInt(byte_rep)
+    for byte_rep in input.split(":"):
+      let hex_byte_int = byte_rep.parseUInt()
       let hex_byte = chr(hex_byte_int)
       write(input_file, hex_byte)
     input_file.close()
