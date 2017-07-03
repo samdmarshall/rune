@@ -1,11 +1,12 @@
 # imports from standard library
 ##
 import os
-import yaml
 import osproc
+import tables
 import streams
 import strutils
 import db_sqlite
+import parsetoml
 
 type ShellCommand* = object
   cmd*: string
@@ -61,10 +62,24 @@ proc decryptData*(config_data: RuneConfiguration, input: string): string {.gcsaf
 
   return output
 
+proc parseArrayValue(settings: TomlTableRef, section: string, key: string): seq[string] =
+  var setting_value = newSeq[string]()
+  let section = settings[section].tableVal
+  let values = section[key].arrayVal
+  for value in values:
+    let value_string = value.stringVal
+    setting_value.add(value_string)
+  return setting_value
+
+proc parseStringValue(settings: TomlTableRef, section: string, key: string): string =
+  let section = settings[section].tableVal
+  let value = section[key].stringVal
+  return value
+
 proc initConfiguration*(): RuneConfiguration {.gcsafe.} =
   var config_data: RuneConfiguration
   
-  let default_prefs_path = expandTilde("~/.config/rune/config.yml")
+  let default_prefs_path = expandTilde("~/.config/rune/config.toml")
   let alternative_prefs_path = getEnv("RUNE_CONFIG")
   
   let use_alternative_config_path: bool = existsEnv("RUNE_CONFIG") and alternative_prefs_path.len > 0
@@ -74,12 +89,14 @@ proc initConfiguration*(): RuneConfiguration {.gcsafe.} =
     else: default_prefs_path
 
   if not os.existsFile(load_prefs_path):
-    echo("Unable to locate the config file, please create it at `~/.config/rune/config.yml` or define `RUNE_CONFIG` in your environment")
+    echo("Unable to locate the config file, please create it at `~/.config/rune/config.toml` or define `RUNE_CONFIG` in your environment")
     quit(QuitFailure)
 
-  let config_stream = newFileStream(load_prefs_path)
-  yaml.serialization.load(config_stream, config_data)
-  config_stream.close()
+  let config = parseFile(load_prefs_path)
+  let database_path = expandTilde(config.parseStringValue("database", "path"))
+  let encrypt_command = ShellCommand(cmd: config.parseStringValue("encrypt", "cmd"), args: config.parseArrayValue("encrypt", "args"))
+  let decrypt_command = ShellCommand(cmd: config.parseStringValue("decrypt", "cmd"), args: config.parseArrayValue("encrypt", "args"))
+  config_data = RuneConfiguration(database: database_path, encrypt: encrypt_command, decrypt: decrypt_command)
 
   return config_data
 
