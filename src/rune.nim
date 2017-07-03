@@ -95,7 +95,7 @@ proc initConfiguration*(): RuneConfiguration {.gcsafe.} =
   let config = parseFile(load_prefs_path)
   let database_path = expandTilde(config.parseStringValue("database", "path"))
   let encrypt_command = ShellCommand(cmd: config.parseStringValue("encrypt", "cmd"), args: config.parseArrayValue("encrypt", "args"))
-  let decrypt_command = ShellCommand(cmd: config.parseStringValue("decrypt", "cmd"), args: config.parseArrayValue("encrypt", "args"))
+  let decrypt_command = ShellCommand(cmd: config.parseStringValue("decrypt", "cmd"), args: config.parseArrayValue("decrypt", "args"))
   config_data = RuneConfiguration(database: database_path, encrypt: encrypt_command, decrypt: decrypt_command)
 
   return config_data
