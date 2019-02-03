@@ -92,7 +92,7 @@ proc initConfiguration*(): RuneConfiguration {.gcsafe.} =
     echo("Unable to locate the config file, please create it at `~/.config/rune/config.toml` or define `RUNE_CONFIG` in your environment")
     quit(QuitFailure)
 
-  let config = parseFile(load_prefs_path)
+  let config: TomlTableRef = parseFile(load_prefs_path).getTable()
   let database_path = expandTilde(config.parseStringValue("database", "path"))
   let encrypt_command = ShellCommand(cmd: config.parseStringValue("encrypt", "cmd"), args: config.parseArrayValue("encrypt", "args"))
   let decrypt_command = ShellCommand(cmd: config.parseStringValue("decrypt", "cmd"), args: config.parseArrayValue("decrypt", "args"))
@@ -102,7 +102,7 @@ proc initConfiguration*(): RuneConfiguration {.gcsafe.} =
 
 proc openRuneDB(config_data: RuneConfiguration): DbConn =
   let database_path = expandTilde(config_data.database)
-  let secure_db = open(database_path, nil, nil, nil)
+  let secure_db = open(database_path, "", "", "")
   secure_db.exec(sql"CREATE TABLE IF NOT EXISTS vault (id INTEGER PRIMARY KEY, key TEXT, value BLOB)")
   return secure_db
 

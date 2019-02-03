@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.2.0"
+version       = "0.3.0"
 author        = "Samantha Marshall"
 description   = "library to securely store secrets"
 license       = "BSD 3-Clause"
