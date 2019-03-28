@@ -6,12 +6,10 @@ description   = "library to securely store secrets"
 license       = "BSD 3-Clause"
 
 srcDir = "src/"
-
+bin = @["rune"]
+installExt = @["nim"]
 
 # Dependencies
 
 requires "nim >= 0.16.1"
 requires "parsetoml"
-
-task build_cli, "build the cli interface":
-  exec "nim compile --out:rune cli.nim"
