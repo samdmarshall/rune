@@ -6,6 +6,8 @@ import tables
 import streams
 import strutils
 import db_sqlite
+import algorithm
+
 import parsetoml
 
 type ShellCommand* = object
@@ -131,4 +133,5 @@ proc getRunes*(config: RuneConfiguration): seq[string] =
   for row in secure_db.fastRows(sql"SELECT id,key FROM vault"):
     items.add(row[1])
   secure_db.close()
+  items.sort(strutils.cmpIgnoreCase)
   return items

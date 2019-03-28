@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.3.0"
+version       = "0.5.3"
 author        = "Samantha Marshall"
 description   = "library to securely store secrets"
 license       = "BSD 3-Clause"
@@ -11,5 +11,5 @@ installExt = @["nim"]
 
 # Dependencies
 
-requires "nim >= 0.16.1"
+requires "nim >= 0.19.0"
 requires "parsetoml"
