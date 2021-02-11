@@ -64,7 +64,7 @@ proc decryptData*(config_data: RuneConfiguration, input: string): string {.gcsaf
 
   return output
 
-proc parseArrayValue(settings: TomlTableRef, section: string, key: string): seq[string] =
+proc parseArrayValue*(settings: TomlTableRef, section: string, key: string): seq[string] =
   var setting_value = newSeq[string]()
   let section = settings[section].tableVal
   let values = section[key].arrayVal
@@ -73,7 +73,7 @@ proc parseArrayValue(settings: TomlTableRef, section: string, key: string): seq[
     setting_value.add(value_string)
   return setting_value
 
-proc parseStringValue(settings: TomlTableRef, section: string, key: string): string =
+proc parseStringValue*(settings: TomlTableRef, section: string, key: string): string =
   let section = settings[section].tableVal
   let value = section[key].stringVal
   return value
