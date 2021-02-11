@@ -8,6 +8,7 @@ license       = "BSD 3-Clause"
 srcDir = "src/"
 binDir = "build/"
 bin = @["rune"]
+installExt = @["nim"]
 
 # Dependencies
 
