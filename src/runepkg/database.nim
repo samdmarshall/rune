@@ -2,7 +2,7 @@
 import os
 import osproc
 import strutils
-import db_sqlite
+import db_connector/db_sqlite
 import algorithm
 
 # import runepkg/models
